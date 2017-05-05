@@ -1,10 +1,8 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
 
+function myCart (){
 
-var Cart = new Schema({
-
-      items: [{
+      //the list of items in a cart
+      this.items = [{
         product: {
           productID: {type: String, required:true},
           name: {type: String, required:true},
@@ -15,94 +13,101 @@ var Cart = new Schema({
         price:0
       }]
 
-});
-
-var myCart = mongoose.model('Cart', Cart);
-
-module.exports.getItems = function(){
-      return Cart.items;
-}
-
-module.exports.hasProduct = function(product){
-      var i;
-      for(i=0;i<myCart.items.length;i++)
-      {
-        if(myCart.items[i].product.productID==product.productID)
-            return true;
-      }
-      return false;
-};
-
-//how to add
-module.exports.addItem = function(product){
-      var i;
-      console.log(typeof(Cart.items));
-      for(i=0;i<myCart.items.length;i++)
-      {
-        if(myCart.items[i].product.productID==product.productID)
-        {
-             myCart.items[i].count++;
-             return;
-        }
-      }
-      //add a complete new one
-      return;
-};
-
-module.exports.removeItem = function(product){
-      var i;
-      for(i=0;i<Cart.items.length;i++)
-      {
-        if(myCart.items[i].product.productID==product.productID)
-        {
-             myCart.items[i].count--;
-             if(myCart.items[i].count==0)
-                //remove it completely
-             return;
-        }
+      //get all items
+      this.getItems = function(){
+            return this.items;
       }
 
-      return;
+      //boolean if item exists in the cart
+      this.hasProduct = function(product){
+            var i;
+            for(i=0;i<this.items.length;i++)
+            {
+              if(this.items[i].product.productID==product.productID)
+                  return true;
+            }
+            return false;
+      };
+
+      //add an item
+      this.addItem = function(newProduct){
+            var i;
+            for(i=0;i<this.items.length;i++)
+            {
+              //increment the amount if already exists
+              if(this.items[i].product.productID==newProduct.productID)
+              {
+                   this.items[i].count++;
+                   this.items[i].price = this.items[i].product.priceOne * this.items[i].count;
+                   return;
+              }
+            }
+            //add a complete new one
+            this.items.push({product: newProduct, count: 1, price: newProduct.priceOne})
+            return;
+      };
+
+      //remove an item
+      this.removeItem = function(product){
+            var i;
+            for(i=0;i<this.items.length;i++)
+            {
+              if(this.items[i].product.productID==product.productID)
+              {
+                   this.items[i].count--;
+                   this.items[i].price = this.items[i].product.priceOne * this.items[i].count;
+                   if(this.items[i].count==0)
+                    this.items.slice(i,1);
+                   return;
+              }
+            }
+
+            return;
+      };
+
+      //remove the product completely
+      this.removeProduct = function(product){
+            var i;
+            for(i=0;i<this.items.length;i++)
+            {
+              if(this.items[i].product.productID==product.productID)
+              {
+                    this.items.slice(i,1);
+              }
+            }
+
+            return;
+      };
+
+      //return specific item
+      this.getItem = function(product){
+            var i;
+            for(i=0;i<this.items.length;i++)
+            {
+              if(this.items[i].product.productID==product.productID)
+              {
+                   return this.items[i];
+              }
+            }
+
+            return null;
+      };
+
+      //return cart total
+      this.getTotal = function(){
+            var i,total=0;
+            for(i=0;i<this.items.length;i++)
+            {
+                   total=total+this.items[i].price;
+            }
+            return total;
+      };
+
+      //clears the whole cart
+      this.clearCart = function(){
+          this.items = [];
+          return;
+      };
 };
 
-module.exports.removeProduct = function(product){
-      var i;
-      for(i=0;i<myCart.items.length;i++)
-      {
-        if(myCart.items[i].product.productID==product.productID)
-        {
-                //remove it completely
-             return;
-        }
-      }
-
-      return;
-};
-
-module.exports.getItem = function(product){
-      var i;
-      for(i=0;i<myCart.items.length;i++)
-      {
-        if(myCart.items[i].product.productID==product.productID)
-        {
-             return Cart.items[i];
-        }
-      }
-
-      return null;
-};
-
-module.exports.getTotal = function(){
-      var i,total=0;
-      for(i=0;i<myCart.items.length;i++)
-      {
-             total=total+myCart.items[i].price;
-      }
-      return total;
-};
-
-module.exports.clearCart = function(){
-    myCart.items = [];
-    return;
-};
 module.exports = myCart;
