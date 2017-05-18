@@ -2,16 +2,7 @@
 function myCart (){
 
       //the list of items in a cart
-      this.items = [{
-        product: {
-          productID: {type: String, required:true},
-          name: {type: String, required:true},
-          priceOne: {type: Number, required:true}
-        },
-        count: {type: Number, default:1},
-        //price: priceOne*count
-        price:0
-      }]
+      this.items = []
 
       //get all items
       this.getItems = function(){
@@ -57,7 +48,7 @@ function myCart (){
                    this.items[i].count--;
                    this.items[i].price = this.items[i].product.priceOne * this.items[i].count;
                    if(this.items[i].count==0)
-                    this.items.slice(i,1);
+                    this.items.splice(i,1);
                    return;
               }
             }
@@ -72,7 +63,7 @@ function myCart (){
             {
               if(this.items[i].product.productID==product.productID)
               {
-                    this.items.slice(i,1);
+                    this.items.splice(i,1);
               }
             }
 
